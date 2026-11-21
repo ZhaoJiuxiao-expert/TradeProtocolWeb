@@ -1,0 +1,7 @@
+dist/
+node_modules/
+.local/
+*.sqlite*
+*.tgz
+.env*
+.sites-checkout*/
