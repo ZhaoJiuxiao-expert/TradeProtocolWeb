@@ -1,3 +1,4 @@
+import { createRealApi } from './real-api.js';
 const ZERO = '0'.repeat(64);
 const START = 1000000;
 const categories = ['camera', 'game', 'service'];
@@ -253,12 +254,14 @@ async function readAction(request) {
   ensure(p && typeof p==='object' && !Array.isArray(p),'请求格式错误');
   return p;
 }
+const realApi = createRealApi({ensure,json,readAction,canonical,sha256});
 export default {
   async fetch(request,env) {
     const url=new URL(request.url);
     if(!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
     try {
       const db=env.DB;
+      if (url.pathname.startsWith('/api/real/')) return await realApi(request,db,await identity(request));
       if(url.pathname==='/api/ledger' && request.method==='GET') {
         const s=await load(db);
         return json({...ledgerFormat,blocks:s.blocks,head:s.blocks.at(-1)?.hash??ZERO},200,{'Content-Disposition':'attachment; filename="trade-ledger.json"'});
